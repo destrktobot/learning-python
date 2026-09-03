@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 1 · The Core Remap: JavaScript → Python</title>
+<link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+<main>
+  <p class="kicker">Lesson 1 · Python for a JS developer</p>
+  <h1>The Core Remap</h1>
+  <p class="subtitle">You already know how to program. This lesson rewires five JS habits into Python — then you run real Python on your machine.</p>
+
+  <h2>The mental model</h2>
+  <p>Python is closer to JavaScript than it looks: dynamically typed, first-class functions, objects everywhere. The differences are mostly <em>surface</em> — but surface is exactly what slows you down when reading code. Python's design creed is <a href="https://peps.python.org/pep-0020/">"there should be one obvious way to do it"</a>, so once a pattern clicks, it stays clicked.</p>
+
+  <h2>Five remaps</h2>
+
+  <h3>1 · Blocks are indentation, not braces</h3>
+  <p>A colon opens a block; the indented lines (4 spaces, by convention) <em>are</em> the block. Whitespace is syntax.</p>
+  <div class="compare">
+    <div>
+      <p class="lang-label">JavaScript</p>
+      <pre class="lang-js"><code>function greet(name) {
+  if (name) {
+    return `Hello, ${name}!`;
+  }
+  return "Hello, stranger!";
+}</code></pre>
+    </div>
+    <div>
+      <p class="lang-label">Python</p>
+      <pre class="lang-py"><code>def greet(name):
+    if name:
+        return f"Hello, {name}!"
+    return "Hello, stranger!"</code></pre>
+    </div>
+  </div>
+  <p>Notice three more remaps hiding in there: <code>def</code> instead of <code>function</code>, no <code>const</code>/<code>let</code>/semicolons anywhere, and <code>f"..."</code> instead of backticks — an <a href="https://docs.python.org/3/tutorial/inputoutput.html#formatted-string-literals">f-string</a>, with plain <code>{name}</code> (no <code>$</code>).</p>
+
+  <h3>2 · Naming is snake_case</h3>
+  <p><code>getUserName</code> becomes <code>get_user_name</code>. This is a strong convention (<a href="https://peps.python.org/pep-0008/">PEP 8</a>), and Python code that breaks it reads as foreign.</p>
+
+  <h3>3 · One absent value: <code>None</code></h3>
+  <p>There is no <code>undefined</code>. Python has exactly one "nothing": <code>None</code>. Test for it with <code>x is None</code>, not <code>==</code>. Booleans are capitalized too: <code>True</code>, <code>False</code>.</p>
+
+  <h3>4 · <code>==</code> is your <code>===</code></h3>
+  <p>Python's <code>==</code> never coerces types — <code>1 == "1"</code> is <code>False</code>. Your JS reflex to reach for a "strict" operator can relax; the default is already strict.</p>
+
+  <h3>5 · Words, not symbols, for logic</h3>
+  <p><code>&amp;&amp;</code> <code>||</code> <code>!</code> become <code>and</code> <code>or</code> <code>not</code>. So: <code>if name and not banned:</code></p>
+
+  <div class="callout gotcha">
+    <span class="label">Gotcha</span>
+    <p>Python also has an <code>is</code> operator, and it looks tempting. It checks <em>identity</em> (same object in memory), not value equality. Use it for <code>None</code> only. <code>[1,2] == [1,2]</code> is <code>True</code>; <code>[1,2] is [1,2]</code> is <code>False</code>.</p>
+  </div>
+
+  <h2>Hands on: run Python the modern way</h2>
+  <p>The modern Python toolchain is <a href="https://docs.astral.sh/uv/"><strong>uv</strong></a> — think of it as pnpm for Python: one fast tool for projects, dependencies, and Python versions. In your terminal:</p>
+  <pre class="lang-py"><code># 1. Install uv (macOS)
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# 2. Create a project (like npm init)
+uv init hello-python
+cd hello-python
+
+# 3. Run the generated file (like node main.js)
+uv run main.py</code></pre>
+  <p>Now the real exercise. <strong>Without looking back at the code above</strong>, open <code>main.py</code> and translate this JS into Python from memory:</p>
+  <pre class="lang-js"><code>function describeUser(name, isAdmin) {
+  if (isAdmin && name) {
+    return `${name} is an admin`;
+  }
+  return `${name ?? "someone"} is a regular user`;
+}
+console.log(describeUser("Ben", true));</code></pre>
+  <p>Then <code>uv run main.py</code>. If it prints <code>Ben is an admin</code>, you win. (Hint for the <code>??</code> line: Python's <code>or</code> returns the first truthy operand, exactly like JS's <code>||</code> — <code>name or "someone"</code>.) Stuck on an error? That's feedback — read the traceback bottom-up and adjust.</p>
+
+  <h2>Check yourself</h2>
+  <p>Answer from memory — retrieval is the point, not speed.</p>
+  <div class="quiz" data-quiz='[
+    {"prompt": "What marks the body of an if statement in Python?",
+     "options": ["A colon, then an indented block", "Curly braces, just like JavaScript", "A then keyword, then end"],
+     "answer": 0,
+     "why": "The colon opens the block; indentation (4 spaces) defines its extent. Whitespace is syntax."},
+    {"prompt": "JavaScript has null and undefined. What does Python have?",
+     "options": ["Only None", "Only null", "Both nil"],
+     "answer": 0,
+     "why": "One absent value: None. Test for it with «x is None»."},
+    {"prompt": "Which line correctly interpolates the variable name into a string?",
+     "options": ["print(f\"Hello, {name}!\")", "print(\"Hello, ${name}!\")", "print(f\"Hello, ${name}!\")"],
+     "answer": 0,
+     "why": "The f prefix enables interpolation, and braces need no dollar sign."},
+    {"prompt": "What is the Python equivalent of JavaScript strict equality (===)?",
+     "options": ["The == operator, which never coerces", "The is operator, which never coerces", "The === operator, which never coerces"],
+     "answer": 0,
+     "why": "Python == is already strict (no coercion). «is» checks object identity — reserve it for None."},
+    {"prompt": "Which command runs main.py inside your project environment?",
+     "options": ["uv run main.py", "uv exec main.py", "uv node main.py"],
+     "answer": 0,
+     "why": "uv run executes inside the project virtual environment — the equivalent of node main.js."}
+  ]'></div>
+
+  <h2>Go deeper</h2>
+  <p><strong>Primary source:</strong> the official <a href="https://docs.python.org/3/tutorial/introduction.html">Python Tutorial, chapter 3: An Informal Introduction to Python</a> — written for people who already program, ~15 minutes. It's the canonical reference for everything this lesson touched.</p>
+  <p>Keep the <a href="../reference/js-to-python.html">JS → Python cheat sheet</a> handy — it covers this lesson plus the toolchain remap, and will grow with the course.</p>
+
+  <div class="lesson-nav">
+    <span></span>
+    <a href="0002-comprehensions-map-filter-remap.html">Lesson 2: Comprehensions →</a>
+  </div>
+
+  <div class="teacher-note">
+    <p><strong>Questions?</strong> Your teacher is the agent that built this lesson. Ask it anything unclear — "why does Python use <code>or</code> for defaults?", "what's actually in <code>.venv</code>?" — and tell it when you've finished the exercise so it can plan the next lesson.</p>
+  </div>
+</main>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>

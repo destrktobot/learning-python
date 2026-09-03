@@ -1,0 +1,165 @@
+/* Shared stylesheet for all lessons and reference docs in this workspace. */
+
+:root {
+  --bg: #fffdf8;
+  --ink: #1a1a1a;
+  --muted: #6b6558;
+  --accent: #2a6f4e;      /* python-forest green */
+  --accent-soft: #e8f2ec;
+  --js: #8a6d1f;          /* js-amber, for the "in JavaScript" column */
+  --js-soft: #faf3dd;
+  --rule: #e2ddd2;
+  --code-bg: #f4f2ec;
+  --danger: #a33a2e;
+  --danger-soft: #f9e9e6;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: Charter, Georgia, "Times New Roman", serif;
+  font-size: 19px;
+  line-height: 1.55;
+  margin: 0;
+  padding: 0 1.5rem;
+}
+
+main {
+  max-width: 44rem;
+  margin: 0 auto;
+  padding: 3rem 0 6rem;
+}
+
+h1, h2, h3 {
+  font-family: "Avenir Next", Avenir, "Helvetica Neue", sans-serif;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+
+h1 { font-size: 2rem; margin: 0 0 0.25rem; }
+h2 { font-size: 1.3rem; margin-top: 2.5rem; border-bottom: 1px solid var(--rule); padding-bottom: 0.35rem; }
+h3 { font-size: 1.05rem; margin-top: 1.75rem; }
+
+.kicker {
+  font-family: "Avenir Next", Avenir, "Helvetica Neue", sans-serif;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+  margin-bottom: 0.5rem;
+}
+
+.subtitle { color: var(--muted); font-style: italic; margin-top: 0; }
+
+a { color: var(--accent); }
+a:hover { text-decoration-thickness: 2px; }
+
+code, pre {
+  font-family: "SF Mono", ui-monospace, Menlo, Consolas, monospace;
+  font-size: 0.82em;
+}
+
+code { background: var(--code-bg); padding: 0.1em 0.35em; border-radius: 4px; }
+
+pre {
+  background: var(--code-bg);
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  overflow-x: auto;
+  line-height: 1.5;
+}
+pre code { background: none; padding: 0; }
+
+pre.lang-js { border-left: 4px solid var(--js); }
+pre.lang-py { border-left: 4px solid var(--accent); }
+
+.lang-label {
+  font-family: "Avenir Next", Avenir, sans-serif;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  margin-bottom: -0.5rem;
+}
+
+/* Side-by-side JS/Python comparison */
+.compare {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin: 1rem 0;
+}
+.compare pre { margin: 0.25rem 0 0; }
+@media (max-width: 700px) { .compare { grid-template-columns: 1fr; } }
+
+/* Callouts */
+.callout {
+  border-left: 4px solid var(--accent);
+  background: var(--accent-soft);
+  border-radius: 0 8px 8px 0;
+  padding: 0.75rem 1.25rem;
+  margin: 1.5rem 0;
+}
+.callout.gotcha { border-color: var(--danger); background: var(--danger-soft); }
+.callout .label {
+  font-family: "Avenir Next", Avenir, sans-serif;
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* Tables */
+table { border-collapse: collapse; width: 100%; margin: 1rem 0; font-size: 0.95rem; }
+th, td { text-align: left; padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--rule); vertical-align: top; }
+th {
+  font-family: "Avenir Next", Avenir, sans-serif;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+
+/* Quiz component (used with quiz.js) */
+.quiz { margin: 2rem 0; }
+.quiz-q {
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  padding: 1rem 1.25rem 1.25rem;
+  margin: 1rem 0;
+  background: #fff;
+}
+.quiz-q p.prompt { margin-top: 0; font-weight: 600; }
+.quiz-q button.option {
+  display: block;
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  font-size: 0.95rem;
+  background: var(--code-bg);
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  padding: 0.6rem 0.9rem;
+  margin: 0.4rem 0;
+  cursor: pointer;
+}
+.quiz-q button.option:hover { border-color: var(--accent); }
+.quiz-q button.option.correct { background: var(--accent-soft); border-color: var(--accent); }
+.quiz-q button.option.wrong { background: var(--danger-soft); border-color: var(--danger); }
+.quiz-q button.option:disabled { cursor: default; opacity: 0.85; }
+.quiz-q .feedback { font-size: 0.9rem; margin: 0.5rem 0 0; min-height: 1.3em; }
+.quiz-q .feedback.ok { color: var(--accent); }
+.quiz-q .feedback.no { color: var(--danger); }
+
+/* Footer nav / teacher reminder */
+.teacher-note {
+  margin-top: 3.5rem;
+  border-top: 1px solid var(--rule);
+  padding-top: 1.25rem;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+.lesson-nav { display: flex; justify-content: space-between; margin-top: 2rem; font-size: 0.9rem; }

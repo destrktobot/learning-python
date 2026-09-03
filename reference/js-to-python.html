@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JS → Python Cheat Sheet</title>
+<link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+<main>
+  <p class="kicker">Reference</p>
+  <h1>JS → Python Cheat Sheet</h1>
+  <p class="subtitle">The core remap for a JavaScript developer. Grows as lessons cover more ground.</p>
+
+  <h2>Syntax remap</h2>
+  <table>
+    <tr><th>Concept</th><th>JavaScript</th><th>Python</th></tr>
+    <tr><td>Variable</td><td><code>const x = 1; let y = 2;</code></td><td><code>x = 1</code> &nbsp;(no keyword, no <code>const</code>)</td></tr>
+    <tr><td>Naming</td><td><code>camelCase</code></td><td><code>snake_case</code> (constants: <code>UPPER_CASE</code>)</td></tr>
+    <tr><td>Block</td><td><code>if (x) { ... }</code></td><td><code>if x:</code> + indented body (4 spaces)</td></tr>
+    <tr><td>Function</td><td><code>function add(a, b) { return a + b; }</code></td><td><code>def add(a, b):</code><br><code>&nbsp;&nbsp;&nbsp;&nbsp;return a + b</code></td></tr>
+    <tr><td>Anonymous fn</td><td><code>(a, b) =&gt; a + b</code></td><td><code>lambda a, b: a + b</code> (single expression only)</td></tr>
+    <tr><td>String interp</td><td><code>`Hi ${name}`</code></td><td><code>f"Hi {name}"</code> (note the <code>f</code> prefix, plain braces)</td></tr>
+    <tr><td>Strict equality</td><td><code>===</code></td><td><code>==</code> (never coerces types; <code>1 == "1"</code> is <code>False</code>)</td></tr>
+    <tr><td>Absent value</td><td><code>null</code> / <code>undefined</code></td><td><code>None</code> (just one; test with <code>x is None</code>)</td></tr>
+    <tr><td>Booleans</td><td><code>true</code> / <code>false</code></td><td><code>True</code> / <code>False</code> (capitalized)</td></tr>
+    <tr><td>Logical ops</td><td><code>&amp;&amp;</code> <code>||</code> <code>!</code></td><td><code>and</code> <code>or</code> <code>not</code></td></tr>
+    <tr><td>Print</td><td><code>console.log(x)</code></td><td><code>print(x)</code></td></tr>
+    <tr><td>Comment</td><td><code>// note</code></td><td><code># note</code></td></tr>
+    <tr><td>Array</td><td><code>[1, 2, 3]</code></td><td><code>[1, 2, 3]</code> — called a <em>list</em></td></tr>
+    <tr><td>Object (as data)</td><td><code>{name: "Ben"}</code></td><td><code>{"name": "Ben"}</code> — a <em>dict</em>; keys need quotes, access with <code>d["name"]</code></td></tr>
+    <tr><td>For-of loop</td><td><code>for (const x of items)</code></td><td><code>for x in items:</code></td></tr>
+  </table>
+
+  <h2>Iteration &amp; comprehensions</h2>
+  <table>
+    <tr><th>Concept</th><th>JavaScript</th><th>Python</th></tr>
+    <tr><td>Map</td><td><code>xs.map(x =&gt; f(x))</code></td><td><code>[f(x) for x in xs]</code></td></tr>
+    <tr><td>Filter</td><td><code>xs.filter(x =&gt; cond)</code></td><td><code>[x for x in xs if cond]</code></td></tr>
+    <tr><td>Filter + map chain</td><td><code>xs.filter(c).map(f)</code></td><td><code>[f(x) for x in xs if c(x)]</code> — one comprehension</td></tr>
+    <tr><td>Build a dict</td><td><code>Object.fromEntries(xs.map(...))</code></td><td><code>{k(x): v(x) for x in xs}</code></td></tr>
+    <tr><td>Loop over dict</td><td><code>for (const [k, v] of Object.entries(o))</code></td><td><code>for k, v in d.items():</code></td></tr>
+    <tr><td>Index in loop</td><td><code>xs.forEach((x, i) =&gt; ...)</code></td><td><code>for i, x in enumerate(xs):</code></td></tr>
+    <tr><td>Membership</td><td><code>xs.includes(x)</code></td><td><code>x in xs</code> (works on lists, dicts, strings, sets)</td></tr>
+    <tr><td>Side-effect loop</td><td><code>xs.forEach(x =&gt; ...)</code></td><td>plain <code>for x in xs:</code> — no forEach</td></tr>
+  </table>
+  <p>Rule of thumb: comprehensions are for <em>building a collection</em>. If it needs nesting or careful thought, write a plain loop instead.</p>
+
+  <h3>The comprehension shells</h3>
+  <p>The surrounding brackets are the collection's literal syntax — the shell picks what you build:</p>
+  <pre class="lang-py"><code>roles        = {u.role for u in users}          # set   (unique values; no colons)
+roles        = [u.role for u in users]          # list  (Python's word for array)
+role_by_user = {u.name: u.role for u in users}  # dict  (the colon makes it one)
+lazy_roles   = (u.role for u in users)          # generator — NOT a tuple (lazy, consume-once)</code></pre>
+  <p>Access mode matches the <em>data you iterate</em>: dot for dataclasses (<code>u.role</code>), brackets for dicts (<code>u["role"]</code>). Empty <code>{}</code> is always a dict — an empty set is <code>set()</code>.</p>
+
+  <h2>Loops</h2>
+
+  <h3>Loop over items — <code>for...of</code> → <code>for...in</code></h3>
+  <div class="compare">
+    <div>
+      <p class="lang-label">JavaScript</p>
+      <pre class="lang-js"><code>for (const user of users) {
+  console.log(user.name);
+}</code></pre>
+    </div>
+    <div>
+      <p class="lang-label">Python</p>
+      <pre class="lang-py"><code>for user in users:
+    print(user.name)</code></pre>
+    </div>
+  </div>
+  <p>Careful: Python's <code>for...in</code> is JS's <code>for...of</code> (values), <em>not</em> JS's <code>for...in</code> (keys). Same words, opposite meaning — iterating a Python dict directly gives keys, though (see below).</p>
+
+  <h3>Need the index — <code>enumerate</code></h3>
+  <div class="compare">
+    <div>
+      <p class="lang-label">JavaScript</p>
+      <pre class="lang-js"><code>users.forEach((u, i) => {
+  console.log(`${i}: ${u.name}`);
+});</code></pre>
+    </div>
+    <div>
+      <p class="lang-label">Python</p>
+      <pre class="lang-py"><code>for i, u in enumerate(users):
+    print(f"{i}: {u.name}")</code></pre>
+    </div>
+  </div>
+
+  <h3>Counted loop — <code>range</code></h3>
+  <div class="compare">
+    <div>
+      <p class="lang-label">JavaScript</p>
+      <pre class="lang-js"><code>for (let i = 0; i < 5; i++) { ... }
+for (let i = 10; i > 0; i -= 2) { ... }</code></pre>
+    </div>
+    <div>
+      <p class="lang-label">Python</p>
+      <pre class="lang-py"><code>for i in range(5):        # 0,1,2,3,4 (end-exclusive)
+for i in range(10, 0, -2) # 10,8,6,4,2 (start, stop, step)</code></pre>
+    </div>
+  </div>
+  <p>There is no C-style <code>for(;;)</code> in Python. Looping over <code>range(len(xs))</code> to index into <code>xs</code> is an anti-pattern — use <code>enumerate</code>.</p>
+
+  <h3>Loop over a dict</h3>
+  <div class="compare">
+    <div>
+      <p class="lang-label">JavaScript</p>
+      <pre class="lang-js"><code>for (const [k, v] of Object.entries(o)) { ... }
+for (const k of Object.keys(o)) { ... }
+for (const v of Object.values(o)) { ... }</code></pre>
+    </div>
+    <div>
+      <p class="lang-label">Python</p>
+      <pre class="lang-py"><code>for k, v in d.items():    # entries
+for k in d:               # keys (the default!)
+for v in d.values():      # values</code></pre>
+    </div>
+  </div>
+
+  <h3>Two lists in lockstep — <code>zip</code></h3>
+  <pre class="lang-py"><code>names = ["Ben", "Ada"]
+roles = ["admin", "user"]
+for name, role in zip(names, roles):
+    print(f"{name}: {role}")     # Ben: admin / Ada: user</code></pre>
+
+  <h3><code>while</code> — and the missing <code>do...while</code></h3>
+  <div class="compare">
+    <div>
+      <p class="lang-label">JavaScript</p>
+      <pre class="lang-js"><code>while (queue.length > 0) { ... }
+
+do {
+  attempt();
+} while (!ok);</code></pre>
+    </div>
+    <div>
+      <p class="lang-label">Python</p>
+      <pre class="lang-py"><code>while queue:          # truthiness: empty list is falsy
+    ...
+
+while True:           # no do-while; this is the idiom
+    attempt()
+    if ok:
+        break</code></pre>
+    </div>
+  </div>
+  <p><code>break</code> and <code>continue</code> work exactly as in JS. Curiosity you'll meet reading others' code: a <code>for</code>/<code>while</code> can have an <code>else:</code> clause that runs only if the loop finished <em>without</em> <code>break</code> — rarely written, worth recognizing.</p>
+
+  <h2>Dicts, JSON &amp; dataclasses</h2>
+  <table>
+    <tr><th>Task</th><th>JavaScript</th><th>Python</th></tr>
+    <tr><td>Safe key read</td><td><code>obj?.role</code></td><td><code>d.get("role")</code> → <code>None</code> if missing</td></tr>
+    <tr><td>Read with default</td><td><code>obj.role ?? "user"</code></td><td><code>d.get("role", "user")</code></td></tr>
+    <tr><td>Key exists?</td><td><code>"role" in obj</code></td><td><code>"role" in d</code></td></tr>
+    <tr><td>Parse JSON</td><td><code>JSON.parse(text)</code></td><td><code>json.loads(text)</code> ("load string")</td></tr>
+    <tr><td>Serialize JSON</td><td><code>JSON.stringify(data)</code></td><td><code>json.dumps(data)</code> ("dump string")</td></tr>
+    <tr><td>Spread into a call</td><td><code>fn(...obj)</code></td><td><code>fn(**d)</code> — keys become keyword args</td></tr>
+    <tr><td>Dict → domain object</td><td>(manual / a class)</td><td><code>User(**d)</code>; defaults on the dataclass absorb missing fields</td></tr>
+  </table>
+  <p>Boundary rule: dicts at the wire (JSON in/out), dataclasses inside your logic. Missing-key reads: brackets when the key <em>must</em> exist (let <code>KeyError</code> find bugs), <code>.get()</code> only when absence is legitimate.</p>
+
+  <h2>Toolchain remap (uv)</h2>
+  <table>
+    <tr><th>Task</th><th>Node world</th><th>Python world (uv)</th></tr>
+    <tr><td>New project</td><td><code>npm init</code></td><td><code>uv init myproject</code></td></tr>
+    <tr><td>Manifest file</td><td><code>package.json</code></td><td><code>pyproject.toml</code></td></tr>
+    <tr><td>Add dependency</td><td><code>npm install express</code></td><td><code>uv add fastapi</code></td></tr>
+    <tr><td>Lockfile</td><td><code>package-lock.json</code></td><td><code>uv.lock</code></td></tr>
+    <tr><td>deps directory</td><td><code>node_modules/</code></td><td><code>.venv/</code> (the virtual environment)</td></tr>
+    <tr><td>Run a script</td><td><code>node main.js</code></td><td><code>uv run main.py</code></td></tr>
+    <tr><td>REPL</td><td><code>node</code></td><td><code>uv run python</code></td></tr>
+  </table>
+
+  <div class="callout gotcha">
+    <span class="label">Gotcha</span>
+    <p>Python's <code>==</code> behaves like JS's <code>===</code> (no type coercion). Python's <code>is</code> checks <em>identity</em> (same object in memory) — use it only for <code>None</code>: <code>if x is None:</code>.</p>
+  </div>
+
+  <p><a href="../lessons/0001-js-to-python-core-remap.html">← Lesson 1: The Core Remap</a></p>
+</main>
+</body>
+</html>

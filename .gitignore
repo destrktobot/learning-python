@@ -1,0 +1,12 @@
+# Personal learning state — stays local, out of the public site repo
+MISSION.md
+NOTES.md
+RESOURCES.md
+learning-records/
+
+# Exercise project & Python artifacts
+hello-python/
+.venv/
+__pycache__/
+
+.DS_Store

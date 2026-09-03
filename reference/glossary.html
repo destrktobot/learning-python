@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Python Glossary (JS-anchored)</title>
+<link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+<main>
+  <p class="kicker">Reference</p>
+  <h1>Glossary</h1>
+  <p class="subtitle">Python's names for things, anchored to what a JS developer already knows. Terms are added as lessons introduce them — say the Python word out loud; vocabulary is half of fluency.</p>
+
+  <h2>Collections</h2>
+  <table>
+    <tr><th>Term</th><th>What it is</th><th>JS anchor</th></tr>
+    <tr><td><strong>list</strong></td><td>Ordered, mutable sequence: <code>[1, 2, 3]</code>. Never called an "array."</td><td>Array</td></tr>
+    <tr><td><strong>dict</strong></td><td>Key → value mapping: <code>{"a": 1}</code>. Keys keep their type; missing key raises <code>KeyError</code> (use <code>.get()</code>). Preserves insertion order.</td><td><code>Map</code>, not <code>{}</code></td></tr>
+    <tr><td><strong>set</strong></td><td>Unordered bag of unique values: <code>{1, 2, 3}</code>. No indexing. Empty one is <code>set()</code>, because <code>{}</code> is a dict.</td><td><code>Set</code></td></tr>
+    <tr><td><strong>tuple</strong></td><td>Fixed, immutable sequence: <code>(1, "a")</code>. Parked for a later lesson.</td><td>~frozen array</td></tr>
+    <tr><td><strong>comprehension</strong></td><td>A collection literal with a loop inside: <code>[expr for x in xs if cond]</code>. The shell (<code>[]</code>, <code>{k: v}</code>, <code>{v}</code>) picks list/dict/set.</td><td><code>.filter().map()</code> chain</td></tr>
+    <tr><td><strong>generator</strong></td><td>Lazy, consume-once iterator; <code>(expr for x in xs)</code>. Flagged, not yet taught.</td><td>generator/iterator</td></tr>
+  </table>
+
+  <h2>Values &amp; syntax</h2>
+  <table>
+    <tr><th>Term</th><th>What it is</th><th>JS anchor</th></tr>
+    <tr><td><strong>None</strong></td><td>The single absent value. Test with <code>x is None</code>.</td><td><code>null</code> (+<code>undefined</code>)</td></tr>
+    <tr><td><strong>f-string</strong></td><td>Interpolated string: <code>f"Hi {name}"</code>. Same-quote nesting needs Python ≥3.12.</td><td>template literal</td></tr>
+    <tr><td><strong>truthy / falsy</strong></td><td>Same idea as JS; additionally empty collections (<code>[]</code>, <code>{}</code>, <code>set()</code>) are falsy.</td><td>truthy/falsy</td></tr>
+    <tr><td><strong>subscriptable</strong></td><td>Supports square brackets: <code>x[...]</code>. Lists and dicts are; dataclass instances and sets are not.</td><td>bracket access</td></tr>
+    <tr><td><strong>snake_case / PEP 8</strong></td><td>The naming convention and the style guide that mandates it.</td><td>camelCase, but underscored</td></tr>
+    <tr><td><strong>dataclass</strong></td><td>Declared-field class via <code>@dataclass</code>; dot access, generated constructor/eq/repr. On-ramp to Pydantic.</td><td>TS interface, at runtime</td></tr>
+    <tr><td><strong>traceback</strong></td><td>Python's stack trace. Read bottom-up: last line names the error.</td><td>stack trace</td></tr>
+    <tr><td><strong>type()</strong></td><td>Asks any value what it is: <code>type(x)</code>. First tool when output surprises you.</td><td><code>typeof</code>, but honest</td></tr>
+  </table>
+
+  <h2>Toolchain</h2>
+  <table>
+    <tr><th>Term</th><th>What it is</th><th>JS anchor</th></tr>
+    <tr><td><strong>uv</strong></td><td>Modern project/package manager: <code>uv init</code>, <code>uv add</code>, <code>uv run</code>.</td><td>pnpm</td></tr>
+    <tr><td><strong>virtual environment (.venv)</strong></td><td>Per-project dependency sandbox; uv manages it for you.</td><td><code>node_modules</code></td></tr>
+    <tr><td><strong>pyproject.toml</strong></td><td>Project manifest: metadata + dependencies.</td><td><code>package.json</code></td></tr>
+    <tr><td><strong>REPL</strong></td><td>Interactive prompt: <code>uv run python</code>. For predict-and-check experiments.</td><td><code>node</code> prompt</td></tr>
+  </table>
+
+  <p><a href="js-to-python.html">JS → Python cheat sheet</a> · <a href="../lessons/0002-comprehensions-map-filter-remap.html">Lesson 2</a></p>
+</main>
+</body>
+</html>

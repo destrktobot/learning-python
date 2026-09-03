@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 2 · Comprehensions: The map/filter Remap</title>
+<link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+<main>
+  <p class="kicker">Lesson 2 · Python for a JS developer</p>
+  <h1>Comprehensions: The map/filter Remap</h1>
+  <p class="subtitle">Python lists have no <code>.map()</code> or <code>.filter()</code>. What replaces them is better — once your eye learns to parse it.</p>
+
+  <h2>The mental model</h2>
+  <p>In JS you transform arrays by chaining methods. In Python you write a <a href="https://docs.python.org/3/tutorial/datastructures.html#list-comprehensions"><em>comprehension</em></a>: a single expression that builds a new list. It reads in this order:</p>
+  <pre class="lang-py"><code>[ EXPRESSION  for ITEM in ITERABLE  if CONDITION ]
+#   "map"          "for...of"          "filter"</code></pre>
+  <p>The <code>if</code> filters <em>first</em> — only items that pass it reach the expression. So one comprehension replaces a whole <code>.filter().map()</code> chain:</p>
+  <div class="compare">
+    <div>
+      <p class="lang-label">JavaScript</p>
+      <pre class="lang-js"><code>const names = users
+  .filter(u => u.active)
+  .map(u => u.name);</code></pre>
+    </div>
+    <div>
+      <p class="lang-label">Python</p>
+      <pre class="lang-py"><code>names = [u["name"]
+         for u in users
+         if u["active"]]</code></pre>
+    </div>
+  </div>
+  <p>(One line is fine too: <code>names = [u["name"] for u in users if u["active"]]</code>. Note dict access is <code>u["name"]</code>, not <code>u.name</code> — dicts aren't objects-with-dot-access. That distinction gets its own lesson.)</p>
+
+  <h2>Dict comprehensions</h2>
+  <p>Same idea, curly braces, with a <code>key: value</code> expression — the remap for <code>Object.fromEntries(...map(...))</code>:</p>
+  <div class="compare">
+    <div>
+      <p class="lang-label">JavaScript</p>
+      <pre class="lang-js"><code>const roleByName = Object.fromEntries(
+  users.map(u => [u.name, u.role])
+);</code></pre>
+    </div>
+    <div>
+      <p class="lang-label">Python</p>
+      <pre class="lang-py"><code>role_by_name = {u["name"]: u["role"]
+                for u in users}</code></pre>
+    </div>
+  </div>
+
+  <h2>Looping when you're not building a list</h2>
+  <p>For side effects (printing, appending to several places), use a plain loop — there's no <code>.forEach</code> either. Two loop tools you'll want immediately:</p>
+  <pre class="lang-py"><code>for user in users:              # for...of
+    print(user["name"])
+
+for i, user in enumerate(users):  # when you need the index
+    print(f"{i}: {user['name']}")
+
+if "Ben" in names:              # .includes() → the `in` operator
+    print("found")</code></pre>
+
+  <div class="callout gotcha">
+    <span class="label">Gotcha</span>
+    <p>When a comprehension needs nesting or a tricky condition, <strong>stop and write a plain loop</strong>. A comprehension you have to re-read is worse than three clear lines. Idiomatic Python treats unreadable one-liners as a smell, not a flex.</p>
+  </div>
+
+  <h2>Hands on: predict, then run</h2>
+  <p>You tested the falsy branch last time, so this exercise is prediction-first. In <code>hello-python/main.py</code>, add:</p>
+  <pre class="lang-py"><code>users = [
+    {"name": "Ben", "role": "admin", "active": True},
+    {"name": "Ada", "role": "user", "active": True},
+    {"name": "Sam", "role": "admin", "active": False},
+]</code></pre>
+  <p>Now — <strong>before running anything</strong> — write down what each of these prints, then translate the JS and check yourself with <code>uv run main.py</code>:</p>
+  <ol>
+    <li><code>console.log(users.filter(u =&gt; u.active).map(u =&gt; u.name))</code></li>
+    <li><code>console.log(Object.fromEntries(users.map(u =&gt; [u.name, u.role])))</code></li>
+    <li>Harder: the names of users who are active <em>admins</em>, uppercased. (Strings have <code>.upper()</code>.)</li>
+  </ol>
+  <p>Expected: <code>['Ben', 'Ada']</code>, then <code>{'name': 'role'}</code>-style dict with all three users, then <code>['BEN']</code>. If a prediction missed, figure out <em>why</em> before moving on — that gap is the lesson.</p>
+
+  <h2>Check yourself</h2>
+  <div class="quiz" data-quiz='[
+    {"prompt": "How do you write users.map(u => u.name) in Python?",
+     "options": ["[u[\"name\"] for u in users]", "users.map(lambda u: u[\"name\"])", "users.map(u => u[\"name\"])"],
+     "answer": 0,
+     "why": "Python lists have no .map method — the comprehension is the idiomatic transform."},
+    {"prompt": "In a list comprehension, where does the filter condition live?",
+     "options": ["After the for clause, at the end", "Before the expression, at the very start", "Inside the for clause, after a comma"],
+     "answer": 0,
+     "why": "[expression for item in iterable if condition] — expression first, filter last."},
+    {"prompt": "In [x * 2 for x in nums if x > 3], which happens first for each item?",
+     "options": ["The filter runs before the doubling", "The doubling runs before the filter", "They run together on each value"],
+     "answer": 0,
+     "why": "Only items passing the if reach the expression — filter gates, then map transforms."},
+    {"prompt": "Which builds a dict mapping each name to its role?",
+     "options": ["{u[\"name\"]: u[\"role\"] for u in users}", "[u[\"name\"]: u[\"role\"] for u in users]", "{u[\"name\"] => u[\"role\"] for u in users}"],
+     "answer": 0,
+     "why": "Curly braces plus a key: value expression make a dict comprehension."},
+    {"prompt": "What replaces names.includes(\"Ben\")?",
+     "options": ["Writing \"Ben\" in names", "Calling names.contains(\"Ben\")", "Calling names.includes(\"Ben\")"],
+     "answer": 0,
+     "why": "The in operator does membership tests on lists, dicts, strings, and sets alike."}
+  ]'></div>
+
+  <h2>Go deeper</h2>
+  <p><strong>Primary source:</strong> the official tutorial's <a href="https://docs.python.org/3/tutorial/datastructures.html">Data Structures chapter</a> — list methods, comprehensions, and dicts in one canonical place. Real Python's <a href="https://realpython.com/list-comprehension-python/">list comprehension guide</a> is the best deeper treatment of when <em>not</em> to use them.</p>
+  <p>The <a href="../reference/js-to-python.html">cheat sheet</a> now has an iteration section covering everything here.</p>
+
+  <div class="lesson-nav">
+    <a href="0001-js-to-python-core-remap.html">← Lesson 1: The Core Remap</a>
+    <a href="0003-dicts-vs-dataclasses.html">Lesson 3: Dicts vs Dataclasses →</a>
+  </div>
+
+  <div class="teacher-note">
+    <p><strong>Questions?</strong> Ask your teacher-agent anything — "why did my prediction for #2 miss?", "when do I use a set comprehension?" — and report back when the exercise runs. Your predictions (right or wrong) shape lesson 3.</p>
+  </div>
+</main>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 3 · Dicts vs Dataclasses</title>
+<link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+<main>
+  <p class="kicker">Lesson 3 · Python for a JS developer</p>
+  <h1>Dicts vs Dataclasses</h1>
+  <p class="subtitle">JS gives you one tool for structured data. Python gives you two — and the boundary between them is where JSON enters your program.</p>
+
+  <h2>The mental model</h2>
+  <p>You've already collided with this (<code>'User' object is not subscriptable</code>), so here's the full map:</p>
+  <table>
+    <tr><th></th><th>dict</th><th>dataclass</th></tr>
+    <tr><td>Access</td><td><code>u["name"]</code></td><td><code>u.name</code></td></tr>
+    <tr><td>Keys/fields are</td><td>runtime <em>data</em> — anything hashable</td><td>declared <em>structure</em> — known when you write the code</td></tr>
+    <tr><td>Missing key/field</td><td><code>KeyError</code> at access time</td><td>error at <em>construction</em> time</td></tr>
+    <tr><td>JS anchor</td><td><code>Map</code></td><td>class / TS interface</td></tr>
+    <tr><td>Use for</td><td>parsed JSON, counters, lookups</td><td>your domain objects: User, Order, Message</td></tr>
+  </table>
+  <p>The decision test from chat, worth memorizing: <strong>do you know the field names while writing the code?</strong> Yes → dataclass. No (they arrive at runtime) → dict.</p>
+
+  <h2>Safe access: <code>.get()</code> and KeyError</h2>
+  <p>A dict read of a missing key doesn't hand you <code>undefined</code> — it raises:</p>
+  <pre class="lang-py"><code>d = {"name": "Ben"}
+d["role"]                  # KeyError: 'role'  — loud, at the exact line
+d.get("role")              # None              — your ?. equivalent
+d.get("role", "user")      # "user"            — your ?? with a default
+"role" in d                # False             — check before you leap</code></pre>
+  <p>Python's culture prefers the loud version: if the key <em>should</em> exist, use brackets and let the <code>KeyError</code> find your bug early. Reach for <code>.get()</code> only when absence is a legitimate case you're handling — exactly the discipline <code>?.</code> demands in JS.</p>
+
+  <h2>Where dicts are forced on you: JSON</h2>
+  <p>The standard library's <a href="https://docs.python.org/3/library/json.html"><code>json</code></a> module is <code>JSON.parse</code>/<code>JSON.stringify</code> with different names:</p>
+  <div class="compare">
+    <div>
+      <p class="lang-label">JavaScript</p>
+      <pre class="lang-js"><code>const data = JSON.parse(text);
+const text2 = JSON.stringify(data);</code></pre>
+    </div>
+    <div>
+      <p class="lang-label">Python</p>
+      <pre class="lang-py"><code>import json
+data = json.loads(text)   # "load string"
+text2 = json.dumps(data)  # "dump string"</code></pre>
+    </div>
+  </div>
+  <p><code>json.loads</code> can only give you dicts, lists, and primitives — it has no idea your domain has Users. So real programs have a <strong>boundary</strong>: dicts on the outside (wire format), dataclasses on the inside (your logic). The crossing:</p>
+  <pre class="lang-py"><code>d = {"name": "Ben", "role": "admin", "active": True}
+user = User(**d)    # ** spreads the dict into keyword args — User(name="Ben", role="admin", active=True)</code></pre>
+  <p><code>**d</code> is the spread operator for calls, like JS <code>fn(...obj)</code> — it unpacks each key as a keyword argument. (Functions get a whole lesson soon; for now, <code>**</code> = "spread this dict into the call.")</p>
+
+  <h2>Defaults for missing fields</h2>
+  <p>If a dict is missing a field, <code>User(**d)</code> fails at construction. The dataclass-side fix — declare a default, exactly like a TS optional-with-default:</p>
+  <pre class="lang-py"><code>@dataclass
+class User:
+    name: str
+    active: bool
+    role: str = "user"   # defaulted fields go last</code></pre>
+  <p>Now <code>User(**{"name": "Ada", "active": True})</code> works, and every missing role uniformly becomes <code>"user"</code> — one declaration instead of <code>.get()</code> calls scattered everywhere.</p>
+
+  <h2>Hands on: cross the boundary</h2>
+  <p>Predict-first, as usual. In <code>main.py</code>, start from raw JSON — note the deliberately missing <code>role</code>:</p>
+  <pre class="lang-py"><code>import json
+
+raw = '[{"name": "Ben", "role": "admin", "active": true},
+        {"name": "Ada", "active": true},
+        {"name": "Sam", "role": "admin", "active": false}]'
+data = json.loads(raw)   # (put the string on one line in your file)</code></pre>
+  <ol>
+    <li>Predict, then run: <code>print(data[1]["role"])</code>. Read the full traceback bottom-up before fixing anything — this one's on purpose.</li>
+    <li>Fix it with <code>.get()</code> so Ada prints <code>user</code>.</li>
+    <li>Add <code>role: str = "user"</code> to your <code>User</code> dataclass, then cross the boundary with a comprehension: <code>users = [User(**d) for d in data]</code>. Print each user's <code>name</code> and <code>role</code> via <em>dot</em> access.</li>
+    <li>Victory check: <code>{u.role for u in users}</code> should print <code>{'admin', 'user'}</code> (either order — you know why).</li>
+  </ol>
+
+  <h2>Check yourself</h2>
+  <div class="quiz" data-quiz='[
+    {"prompt": "Reading a missing key with d[\"nope\"] does what?",
+     "options": ["It raises a KeyError immediately", "It returns None without complaint", "It returns an undefined value"],
+     "answer": 0,
+     "why": "Bracket access is loud on purpose — the error surfaces at the exact line, not three calls later."},
+    {"prompt": "How do you read a possibly-missing key with a fallback of \"guest\"?",
+     "options": ["d.get(\"role\", \"guest\")", "d.fetch(\"role\", \"guest\")", "d.value(\"role\", \"guest\")"],
+     "answer": 0,
+     "why": ".get returns None or your fallback instead of raising — the ?? of dicts."},
+    {"prompt": "What kinds of values can json.loads hand back?",
+     "options": ["Only dicts, lists, and primitives", "Your dataclasses, built by field name", "A special JSON document object"],
+     "answer": 0,
+     "why": "JSON parsing knows nothing about your domain — converting dicts to dataclasses is your job, at the boundary."},
+    {"prompt": "Given dict d with matching keys, how do you build a User from it?",
+     "options": ["User(**d)", "User(...d)", "User([d])"],
+     "answer": 0,
+     "why": "** spreads each key as a keyword argument — the call-site spread, like fn(...obj) in JS."},
+    {"prompt": "You are counting word frequencies from user input. Dict or dataclass?",
+     "options": ["Dict, because keys are runtime data", "Dataclass, because structure is always better", "Either one, because they are interchangeable"],
+     "answer": 0,
+     "why": "The words are not known when you write the code — that is the dict test, passed."}
+  ]'></div>
+
+  <h2>Go deeper</h2>
+  <p><strong>Primary source:</strong> Real Python's <a href="https://realpython.com/python-data-classes/">Data Classes in Python</a> — the definitive tour, including defaults and field ordering. Canonical references: the <a href="https://docs.python.org/3/library/dataclasses.html">dataclasses docs</a> and the <a href="https://docs.python.org/3/library/json.html">json docs</a>.</p>
+  <p>Where this leads: <strong>Pydantic</strong> models are dataclasses that <em>validate</em> at the boundary — wrong types and missing fields rejected with good errors — and FastAPI builds its entire request/response layer on them. This lesson's dict→dataclass crossing is the exact move FastAPI automates.</p>
+
+  <div class="lesson-nav">
+    <a href="0002-comprehensions-map-filter-remap.html">← Lesson 2: Comprehensions</a>
+  </div>
+
+  <div class="teacher-note">
+    <p><strong>Questions?</strong> Ask your teacher-agent — "why keyword args and not positional?", "what if the JSON has extra keys?" (try it — the error is instructive). Report your step-1 prediction and what actually printed.</p>
+  </div>
+</main>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>
