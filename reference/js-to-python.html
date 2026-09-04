@@ -162,6 +162,12 @@ while True:           # no do-while; this is the idiom
   <p>Star system in one line: one star = positional, two stars = keyword; in a <em>signature</em> they gather, at a <em>call site</em> they spread.</p>
 
   <h2>Dicts, JSON &amp; dataclasses</h2>
+  <p>The four ways to read a dict key, at a glance:</p>
+  <pre class="lang-py"><code>d = {"name": "Ben"}
+d["role"]                  # KeyError: 'role'  — loud, at the exact line
+d.get("role")              # None              — your ?. equivalent
+d.get("role", "user")      # "user"            — your ?? with a default
+"role" in d                # False             — check before you leap</code></pre>
   <table>
     <tr><th>Task</th><th>JavaScript</th><th>Python</th></tr>
     <tr><td>Safe key read</td><td><code>obj?.role</code></td><td><code>d.get("role")</code> → <code>None</code> if missing</td></tr>
