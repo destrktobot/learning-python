@@ -147,6 +147,20 @@ while True:           # no do-while; this is the idiom
   </div>
   <p><code>break</code> and <code>continue</code> work exactly as in JS. Curiosity you'll meet reading others' code: a <code>for</code>/<code>while</code> can have an <code>else:</code> clause that runs only if the loop finished <em>without</em> <code>break</code> — rarely written, worth recognizing.</p>
 
+  <h2>Functions</h2>
+  <table>
+    <tr><th>Concept</th><th>JavaScript</th><th>Python</th></tr>
+    <tr><td>Default parameter</td><td><code>function f(x = 1)</code> — re-evaluated per call</td><td><code>def f(x=1):</code> — evaluated <strong>once</strong> at <code>def</code> time</td></tr>
+    <tr><td>Mutable default</td><td><code>f(x = [])</code> is fine</td><td><code>def f(x=[])</code> is a bug — use <code>x=None</code> + <code>if x is None: x = []</code></td></tr>
+    <tr><td>Options object</td><td><code>fn(url, {retries: 3})</code></td><td><code>fn(url, retries=3)</code> — keyword arguments, no wrapper</td></tr>
+    <tr><td>Keyword-only params</td><td>(no equivalent)</td><td><code>def f(a, *, flag=False):</code> — after <code>*</code>, name required at call site</td></tr>
+    <tr><td>Rest params</td><td><code>function f(...vals)</code></td><td><code>def f(*args):</code> → tuple of extra positionals</td></tr>
+    <tr><td>Keyword catch-all</td><td>(no equivalent)</td><td><code>def f(**kwargs):</code> → dict of extra keyword args</td></tr>
+    <tr><td>Spread into call</td><td><code>fn(...arr)</code> / <code>fn(...obj)</code></td><td><code>fn(*a_list)</code> / <code>fn(**a_dict)</code></td></tr>
+    <tr><td>Arrow function</td><td><code>x =&gt; x + 1</code> (full body allowed)</td><td><code>lambda x: x + 1</code> — single expression only; prefer <code>def</code></td></tr>
+  </table>
+  <p>Star system in one line: one star = positional, two stars = keyword; in a <em>signature</em> they gather, at a <em>call site</em> they spread.</p>
+
   <h2>Dicts, JSON &amp; dataclasses</h2>
   <table>
     <tr><th>Task</th><th>JavaScript</th><th>Python</th></tr>

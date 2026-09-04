@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 4 · Functions: Defaults, Keywords, and the Spread Remap</title>
+<link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+<main>
+  <p class="kicker">Lesson 4 · Python for a JS developer</p>
+  <h1>Functions: Defaults, Keywords, and the Spread Remap</h1>
+  <p class="subtitle">Python functions look like JS functions with different punctuation — until default values and keyword arguments change how APIs are designed. Plus the gotcha that bites every JS developer exactly once.</p>
+
+  <h2>Keyword arguments: the options-object killer</h2>
+  <p>In JS, a function with many optional settings takes an options object. Python doesn't need that pattern — <strong>any parameter can be passed by name at the call site</strong>:</p>
+  <div class="compare">
+    <div>
+      <p class="lang-label">JavaScript</p>
+      <pre class="lang-js"><code>fetchData(url, {
+  retries: 3,
+  timeout: 30,
+});</code></pre>
+    </div>
+    <div>
+      <p class="lang-label">Python</p>
+      <pre class="lang-py"><code>fetch_data(url, retries=3, timeout=30)
+
+def fetch_data(url, retries=1, timeout=10):
+    ...</code></pre>
+    </div>
+  </div>
+  <p>No wrapper object, no destructuring on the receiving end. Idiomatic Python calls pass anything non-obvious by keyword — <code>send(msg, urgent=True)</code> reads better than <code>send(msg, True)</code>, and reviewers will expect it.</p>
+  <p>You can even <em>force</em> it: parameters declared after a bare <code>*</code> are keyword-only. <code>def send(msg, *, urgent=False)</code> makes <code>send(msg, True)</code> an error — the call site must say <code>urgent=True</code>. You'll see this constantly in library signatures (FastAPI included).</p>
+
+  <h2>The gotcha: defaults are evaluated once</h2>
+  <p>In JS, a default value expression re-runs on <em>every call</em>. In Python it runs <strong>once, when <code>def</code> executes</strong> — and the result is shared by all calls. With immutable defaults (<code>1</code>, <code>"user"</code>, <code>None</code>) you'll never notice. With a mutable default, you get Python's most famous trap:</p>
+  <pre class="lang-py"><code>def add_tag(tag, tags=[]):   # ⚠️ one shared list, created at def time
+    tags.append(tag)
+    return tags
+
+add_tag("a")   # ['a']
+add_tag("b")   # ['a', 'b']  ← same list! JS would give ['b']</code></pre>
+  <p>The idiom every Python codebase uses — default to <code>None</code>, create inside:</p>
+  <pre class="lang-py"><code>def add_tag(tag, tags=None):
+    if tags is None:
+        tags = []          # fresh list per call, like JS defaults
+    tags.append(tag)
+    return tags</code></pre>
+  <p>Linters flag <code>def f(x=[])</code> and <code>def f(x={})</code> on sight. Now you know why.</p>
+
+  <h2><code>*args</code> and <code>**kwargs</code>: the full spread story</h2>
+  <p>You met <code>User(**d)</code> in <a href="0003-dicts-vs-dataclasses.html">lesson 3</a> — spreading a dict <em>into</em> a call. The same stars work on the receiving side, like JS rest parameters:</p>
+  <div class="compare">
+    <div>
+      <p class="lang-label">JavaScript</p>
+      <pre class="lang-js"><code>function log(...values) { ... }
+
+// no real equivalent — closest is
+// an options object catch-all</code></pre>
+    </div>
+    <div>
+      <p class="lang-label">Python</p>
+      <pre class="lang-py"><code>def log(*values):     # extra positional args → tuple
+    ...
+
+def tag(**attrs):     # extra keyword args → dict
+    ...</code></pre>
+    </div>
+  </div>
+  <p>So the stars are one symmetric system — <em>one star for positional, two for keyword; gather in a signature, spread in a call</em>:</p>
+  <pre class="lang-py"><code>def tag(name, **attrs):                    # gather:  attrs = {"href": "/", "cls": "nav"}
+    parts = [f'{k}="{v}"' for k, v in attrs.items()]
+    return f"&lt;{name} {' '.join(parts)}&gt;"
+
+tag("a", href="/", cls="nav")              # '&lt;a href="/" cls="nav"&gt;'
+
+opts = {"href": "/", "cls": "nav"}
+tag("a", **opts)                           # spread: same call, dict source</code></pre>
+  <p>The conventional names <code>args</code>/<code>kwargs</code> ("keyword args") are just convention — the stars do the work. You'll meet <code>**kwargs</code> everywhere in FastAPI and the AI SDKs: <code>client.messages.create(model=..., max_tokens=..., **extra)</code>.</p>
+
+  <div class="callout gotcha">
+    <span class="label">Gotcha</span>
+    <p><code>lambda</code> is not an arrow function. It's restricted to a single expression — no statements, no blocks. The moment you want two lines, write a <code>def</code>. Python culture prefers named functions anyway; a <code>lambda</code> assigned to a variable is a lint error (<a href="https://peps.python.org/pep-0008/#programming-recommendations">PEP 8</a>).</p>
+  </div>
+
+  <h2>Hands on: predict, then run</h2>
+  <p>In <code>main.py</code>:</p>
+  <ol>
+    <li>Type the <em>broken</em> <code>add_tag</code> (mutable default version) from memory. Predict what <code>print(add_tag("a"))</code> then <code>print(add_tag("b"))</code> print — write both down — then run. Sit with the result until the "evaluated once, at <code>def</code> time" model explains it.</li>
+    <li>Fix it with the <code>None</code> idiom. Confirm <code>['a']</code> then <code>['b']</code>.</li>
+    <li>Build the <code>tag</code> function from this lesson's example yourself, then call it three ways: keyword args directly, via <code>**opts</code> from a dict, and — the boundary move — <code>tag("a", **json.loads('{"href": "/docs"}'))</code>.</li>
+    <li>Victory check: change <code>tag</code>'s signature to <code>def tag(name, *, self_closing=False, **attrs)</code> and make <code>tag("img", True)</code> fail but <code>tag("img", self_closing=True, src="x.png")</code> work.</li>
+  </ol>
+
+  <h2>Check yourself</h2>
+  <div class="quiz" data-quiz='[
+    {"prompt": "What is wrong with def f(items=[])?",
+     "options": ["The list is shared across all calls", "The list is rebuilt on every call", "The syntax is invalid for defaults"],
+     "answer": 0,
+     "why": "Defaults evaluate once, at def time — every call without the arg mutates the same list."},
+    {"prompt": "What is the idiomatic safe default for a mutable parameter?",
+     "options": ["Default to None, create fresh inside", "Default to empty, copy it inside", "Default to global, clear it inside"],
+     "answer": 0,
+     "why": "tags=None plus «if tags is None: tags = []» gives a fresh object per call."},
+    {"prompt": "In a signature, what does *args collect?",
+     "options": ["Extra positional arguments, as a tuple", "Extra keyword arguments, as a dict", "Every argument passed, as a list"],
+     "answer": 0,
+     "why": "One star gathers positionals into a tuple; two stars (**kwargs) gather keywords into a dict."},
+    {"prompt": "How do you pass options the way JS uses fn({retries: 3})?",
+     "options": ["fetch_data(url, retries=3)", "fetch_data(url, {retries: 3})", "fetch_data(url, retries: 3)"],
+     "answer": 0,
+     "why": "Keyword arguments replace the options-object pattern — no wrapper dict needed."},
+    {"prompt": "Given def send(msg, *, urgent=False), how must urgent be passed?",
+     "options": ["By keyword only: send(msg, urgent=True)", "By position only: send(msg, True)", "Either way works, both are accepted"],
+     "answer": 0,
+     "why": "Parameters after a bare * are keyword-only — positional passing raises a TypeError."}
+  ]'></div>
+
+  <h2>Go deeper</h2>
+  <p><strong>Primary source:</strong> the official tutorial's <a href="https://docs.python.org/3/tutorial/controlflow.html#more-on-defining-functions">More on Defining Functions</a> — defaults, keyword args, and the star forms, canonically. Real Python's <a href="https://realpython.com/python-kwargs-and-args/">*args and **kwargs guide</a> goes deeper on the gather/spread symmetry.</p>
+  <p>Cross-reference: the <a href="../reference/js-to-python.html">cheat sheet</a> has a new Functions section; the <a href="../reference/glossary.html">glossary</a> gained <em>keyword argument</em>, <em>*args/**kwargs</em>, and the mutable-default entry.</p>
+
+  <div class="lesson-nav">
+    <a href="0003-dicts-vs-dataclasses.html">← Lesson 3: Dicts vs Dataclasses</a>
+  </div>
+
+  <div class="teacher-note">
+    <p><strong>Questions?</strong> Ask your teacher-agent — "why once at def time, what's the rationale?", "when would I actually write *args?" — and report your step-1 predictions versus what printed. Both lesson-3 and lesson-4 exercises are open; either can go first.</p>
+  </div>
+</main>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>

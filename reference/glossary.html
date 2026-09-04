@@ -34,6 +34,9 @@
     <tr><td><strong>dataclass</strong></td><td>Declared-field class via <code>@dataclass</code>; dot access, generated constructor/eq/repr. On-ramp to Pydantic.</td><td>TS interface, at runtime</td></tr>
     <tr><td><strong>traceback</strong></td><td>Python's stack trace. Read bottom-up: last line names the error.</td><td>stack trace</td></tr>
     <tr><td><strong>type()</strong></td><td>Asks any value what it is: <code>type(x)</code>. First tool when output surprises you.</td><td><code>typeof</code>, but honest</td></tr>
+    <tr><td><strong>keyword argument</strong></td><td>Passing by name at the call site: <code>send(msg, urgent=True)</code>. Replaces the options-object pattern. After a bare <code>*</code> in a signature, it's mandatory.</td><td><code>fn({opts})</code>, no wrapper</td></tr>
+    <tr><td><strong>*args / **kwargs</strong></td><td>Gather extra positionals (tuple) / keywords (dict) in a signature; <code>*</code>/<code>**</code> at a call site spread them back out.</td><td><code>...rest</code> / <code>...spread</code></td></tr>
+    <tr><td><strong>mutable default</strong></td><td>The trap: <code>def f(x=[])</code> shares one list across calls (defaults evaluate once, at <code>def</code>). Idiom: <code>x=None</code>, create inside.</td><td>(JS defaults re-run per call)</td></tr>
   </table>
 
   <h2>Toolchain</h2>
